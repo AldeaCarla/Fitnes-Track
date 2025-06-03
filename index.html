@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="workouts.html">Antrenamente</a>
+        <a href="progress.html">Progres</a>
+        <a href="nutrition.html">Plan Alimentar</a>
+        <a href="despre.html">Despre Aplicație</a>
+    </nav>
+    <div class="container">
+        <h1>Bine ai venit!</h1>
+        <p>Folosește aplicația pentru a-ți urmări progresul la sală.</p>
+
+        <h2>Înregistrare</h2>
+        <input type="text" id="new-username" placeholder="Alege un nume de utilizator">
+        <input type="password" id="new-password" placeholder="Alege o parolă">
+        <button type="button" onclick="register()">Înregistrează-te</button>
+        <p id="register-message"></p>
+
+        <h2>Autentificare</h2>
+        <input type="text" id="username" placeholder="Nume utilizator">
+        <input type="password" id="password" placeholder="Parolă">
+        <button type="button" onclick="login()">Login</button>
+        <p id="login-message"></p>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 

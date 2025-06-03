@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Alimentar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Acasă</a>
+        <a href="workouts.html">Antrenamente</a>
+        <a href="progress.html">Progres</a>
+        <a href="nutrition.html">Plan Alimentar</a>
+          <a herf="despre.html">Despre Aplicație</a>
+
+    </nav>
+
+    <div class="container">
+        <h2>Exemple retete pentru Bodybuilderi</h2>
+        <button type="button" onclick="getRecipes()">Încarcă Rețete</button>
+          <div id="recipe-list"></div>
+         <button id="loadMore" type="button">Încarcă mai multe</button>
+
+        <div id="recipes-container"></div>
+        <div id="recipes" class="recipe-grid"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antrenamente</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Acasă</a>
+        <a href="progress.html">Progres</a>
+        <a href="nutrition.html">Plan Alimentar</a>
+         <a herf="despre.html">Despre Aplicație</a>
+
+    </nav>
+    <div class="container">
+        <h2>Adaugă antrenament</h2>
+        <input type="text" id="exercise" placeholder="Exercițiu">
+        <input type="number" id="reps" placeholder="Repetări">
+        <input type="number" id="weight" placeholder="Greutate (kg)">
+        <button type="button" onclick="addWorkout()">Adaugă</button>
+        <button type="button" onclick="loadWorkouts()">Încarcă antrenamente</button>
+<button type="button" onclick="goToProgress()" class="progress-button">Vezi Progresul</button>
+
+        <p id="workout-message"></p>
+        <h2>Lista de antrenamente</h2>
+        <p>Aici vei putea vizualiza antrenamentele adăugate.</p>
+        <ul id="workouts"></ul>
+        <ul id="workout-list"></ul>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
