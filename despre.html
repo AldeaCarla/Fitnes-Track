@@ -1,53 +1,139 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <title>Despre Aplicație</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despre Aplicație</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-<nav>
-    <a href="index.html">Acasă</a>
-    <a href="despre.html">Despre Aplicație</a>
-    <a href="workouts.html">Antrenamente</a>
-    <a href="progress.html">Progres</a>
-    <a href="nutrition.html">Plan Alimentar</a>
-</nav>
-  <header class="container">
-    <h1>Scopul Nostru</h1>
-<div class="description">
-  <p><strong>Fitness Track</strong> este o aplicație dedicată tuturor celor care sunt la început de drum în sală.</p>
-  <p>Știm că e greu să începi, să nu știi cum să-ți organizezi antrenamentele sau ce să mănânci pentru un stil de viață sănătos.</p>
-  <p>De aceea, am creat această aplicație ca să te ajute să-ți planifici antrenamentele, mesele și să-ți urmărești progresul.</p>
-  <p>Suntem aici să te susținem să-ți atingi obiectivele și să devii cea mai bună versiune a ta!</p>
-</div>
- </header>
+    <nav>
+        <a href="index.html">Acasă</a>
+        <a href="despre.html">Despre Aplicație</a>
+        <a href="workouts.html">Antrenamente</a>
+        <a href="progress.html">Progres</a>
+        <a href="nutrition.html">Plan Alimentar</a>
+    </nav>
 
-  <main class="container">
-    <section class="gallery">
-     <img src="nutrition.jpg" alt="Nutriție">
-   <img src="workout.jpg" alt="Antrenament">
-   <img src="progress.jpg" alt="Progres">
-   <img src="healthy.jpg" alt="Stil de viață sănătos">
+    <div class="about-hero">
+        <div class="container">
+            <h1>Despre Fitness Track</h1>
+            <p class="hero-subtitle">Transformă-ți călătoria fitness într-o experiență plăcută și organizată</p>
+        </div>
+    </div>
 
-    </section>
+    <main class="container">
+        <section class="about-section">
+            <div class="about-content">
+                <h2>Scopul Nostru</h2>
+                <p><strong>Fitness Track</strong> este o aplicație dedicată tuturor celor care sunt la început de drum în sală.</p>
+                <p>Știm că e greu să începi, să nu știi cum să-ți organizezi antrenamentele sau ce să mănânci pentru un stil de viață sănătos.</p>
+                <p>De aceea, am creat această aplicație ca să te ajute să-ți planifici antrenamentele, mesele și să-ți urmărești progresul.</p>
+                <p>Suntem aici să te susținem să-ți atingi obiectivele și să devii cea mai bună versiune a ta!</p>
+            </div>
+        </section>
 
-    <section class="buttons">
- <button type="button" onclick="navigateTo('nutrition.html')">Nutrition</button>
-      <button type="button" onclick="navigateTo('workouts.html')">Workouts</button>
-      <button type="button" onclick="navigateTo('progress.html')">Progress</button>
-    </section>
+        <section class="features-section">
+            <h2>Caracteristici Principale</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-dumbbell"></i>
+                    <h3>Antrenamente Personalizate</h3>
+                    <p>Urmărește-ți antrenamentele, setează-ți obiective și vezi progresul în timp real.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Urmărirea Progresului</h3>
+                    <p>Vizualizează-ți evoluția cu grafice interactive și statistici detaliate.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-apple-alt"></i>
+                    <h3>Plan Alimentar</h3>
+                    <p>Descoperă rețete sănătoase și planifică-ți mesele pentru rezultate optime.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-trophy"></i>
+                    <h3>Achievements</h3>
+                    <p>Deblochează realizări și urmărește-ți performanța în timp.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Galerie</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="nutrition.jpg" alt="Nutriție">
+                    <div class="gallery-overlay">
+                        <h3>Nutriție Sănătoasă</h3>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="workout.jpg" alt="Antrenament">
+                    <div class="gallery-overlay">
+                        <h3>Antrenamente Eficiente</h3>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="progress.jpg" alt="Progres">
+                    <div class="gallery-overlay">
+                        <h3>Urmărirea Progresului</h3>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="healthy.jpg" alt="Stil de viață sănătos">
+                    <div class="gallery-overlay">
+                        <h3>Stil de Viață Sănătos</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2>Începe-ți Călătoria Astăzi</h2>
+            <div class="cta-buttons">
+                <button type="button" class="cta-button" onclick="navigateTo('workouts.html')">
+                    <i class="fas fa-dumbbell"></i>
+                    Antrenamente
+                </button>
+                <button type="button" class="cta-button" onclick="navigateTo('nutrition.html')">
+                    <i class="fas fa-apple-alt"></i>
+                    Nutriție
+                </button>
+                <button type="button" class="cta-button" onclick="navigateTo('progress.html')">
+                    <i class="fas fa-chart-line"></i>
+                    Progres
+                </button>
+            </div>
+        </section>
     </main>
 
-  <footer>
-    <p>&copy; 2025 Fitness App</p>
-    <div class="footer-links">
-      <a href="https://scanstart.ro" target="_blank">scanstart.ro</a>
-      <a href="https://csac.ro" target="_blank">csac.ro</a>
-      <a href="https://www.instagram.com/cie.engineering_ulbs/?hl=en" target="_blank">Instagram</a>
-    </div>
-  </footer>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fitness Track</h3>
+                <p>Transformă-ți călătoria fitness într-o experiență plăcută și organizată.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Link-uri Rapide</h3>
+                <a href="index.html">Acasă</a>
+                <a href="workouts.html">Antrenamente</a>
+                <a href="nutrition.html">Nutriție</a>
+                <a href="progress.html">Progres</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <a href="https://scanstart.ro" target="_blank">scanstart.ro</a>
+                <a href="https://csac.ro" target="_blank">csac.ro</a>
+                <a href="https://www.instagram.com/cie.engineering_ulbs/?hl=en" target="_blank">Instagram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Fitness Track. Toate drepturile rezervate.</p>
+        </div>
+    </footer>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
