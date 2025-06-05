@@ -5,30 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Antrenamente</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav>
+        <a href="despre.html">Despre Aplicație</a>
         <a href="index.html">Acasă</a>
         <a href="progress.html">Progres</a>
         <a href="nutrition.html">Plan Alimentar</a>
-         <a herf="despre.html">Despre Aplicație</a>
-
     </nav>
     <div class="container">
         <h2>Adaugă antrenament</h2>
+
+        <!-- Selector categorii -->
+        <select id="category" onchange="filterExercisesByCategory()">
+            <option value="">Toate categoriile</option>
+            <option value="PIEPT">Piept</option>
+            <option value="SPATE">Spate</option>
+            <option value="PICIORI">Picioare</option>
+            <option value="UMERI">Umeri</option>
+            <option value="BICEPS">Biceps</option>
+            <option value="TRICEPS">Triceps</option>
+            <option value="ABDOMEN">Abdomen</option>
+            <option value="CARDIO">Cardio</option>
+        </select>
+
+        <!-- Șabloane antrenamente -->
+        <select id="workout-templates" onchange="applyWorkoutTemplate(this.value)">
+            <option value="">Selectează șablon</option>
+            <option value="Antrenament Piept">Antrenament Piept</option>
+            <option value="Antrenament Spate">Antrenament Spate</option>
+            <option value="Antrenament Picioare">Antrenament Picioare</option>
+        </select>
+
         <input type="text" id="exercise" placeholder="Exercițiu">
         <input type="number" id="reps" placeholder="Repetări">
         <input type="number" id="weight" placeholder="Greutate (kg)">
         <button type="button" onclick="addWorkout()">Adaugă</button>
         <button type="button" onclick="loadWorkouts()">Încarcă antrenamente</button>
-<button type="button" onclick="goToProgress()" class="progress-button">Vezi Progresul</button>
+        <button type="button" onclick="goToProgress()" class="progress-button">Vezi Progresul</button>
+
+        <!-- Cronometru -->
+        <div class="timer-section">
+            <h3>Cronometru Pauză</h3>
+            <div id="timer-display">0:00</div>
+            <button type="button" onclick="startTimer(60)">1 minut</button>
+            <button type="button" onclick="startTimer(90)">1:30 minute</button>
+            <button type="button" onclick="startTimer(120)">2 minute</button>
+        </div>
+
+        <!-- Export -->
+        <button type="button" onclick="exportWorkoutHistory()" class="export-button">Exportă Istoricul</button>
 
         <p id="workout-message"></p>
-        <h2>Lista de antrenamente</h2>
-        <p>Aici vei putea vizualiza antrenamentele adăugate.</p>
+        <h2>Lista de antrenamente:</h2>
+        <p>Antrenamentele adăugate.</p>
         <ul id="workouts"></ul>
         <ul id="workout-list"></ul>
 
+        <!-- Grafic progres -->
+        <div class="progress-chart">
+            <canvas id="progressChart"></canvas>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

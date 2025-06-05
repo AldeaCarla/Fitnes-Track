@@ -8,27 +8,38 @@
 </head>
 <body>
     <nav>
+        <a href="despre.html">Despre Aplicație</a>
         <a href="workouts.html">Antrenamente</a>
         <a href="progress.html">Progres</a>
         <a href="nutrition.html">Plan Alimentar</a>
-        <a href="despre.html">Despre Aplicație</a>
     </nav>
     <div class="container">
-        <h1>Bine ai venit!</h1>
-        <p>Folosește aplicația pentru a-ți urmări progresul la sală.</p>
+        <div class="welcome-section">
+            <h1>Bine ai venit la Fitness Tracker!</h1>
+            <p>Folosește aplicația pentru a-ți urmări progresul la sală și a-ți atinge obiectivele fitness.</p>
 
-        <h2>Înregistrare</h2>
-        <input type="text" id="new-username" placeholder="Alege un nume de utilizator">
-        <input type="password" id="new-password" placeholder="Alege o parolă">
-        <button type="button" onclick="register()">Înregistrează-te</button>
-        <p id="register-message"></p>
+            <div class="about-app-button" style="display: none;">
+                <a href="despre.html" class="cta-button">Află mai multe despre aplicație</a>
+            </div>
+        </div>
 
-        <h2>Autentificare</h2>
-        <input type="text" id="username" placeholder="Nume utilizator">
-        <input type="password" id="password" placeholder="Parolă">
-        <button type="button" onclick="login()">Login</button>
-        <p id="login-message"></p>
+        <div class="auth-section">
+            <div class="register-box">
+                <h2>Înregistrare</h2>
+                <input type="text" id="new-username" placeholder="Alege un nume de utilizator">
+                <input type="password" id="new-password" placeholder="Alege o parolă">
+                <button type="button" onclick="register()">Înregistrează-te</button>
+                <p id="register-message"></p>
+            </div>
 
+            <div class="login-box">
+                <h2>Autentificare</h2>
+                <input type="text" id="username" placeholder="Nume utilizator">
+                <input type="password" id="password" placeholder="Parolă">
+                <button type="button" onclick="login()">Login</button>
+                <p id="login-message"></p>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

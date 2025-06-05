@@ -5,20 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progres</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav>
         <a href="index.html">Acasă</a>
-        <a herf="despre.html">Despre Aplicație</a>
+        <a href="despre.html">Despre Aplicație</a>
         <a href="workouts.html">Antrenamente</a>
         <a href="nutrition.html">Plan Alimentar</a>
     </nav>
     <div class="container">
         <h2>Progres</h2>
         <p>Aici vei putea vizualiza progresul exercițiilor tale.</p>
-        <button type="button" onclick="displayProgress()">Încarcă progres</button>
-        <div id="progress-data"></div>
 
+        <!-- Filtre pentru vizualizare -->
+        <div class="progress-filters">
+            <select id="exercise-filter" onchange="updateProgressCharts()">
+                <option value="">Toate exercițiile</option>
+            </select>
+            <select id="time-filter" onchange="updateProgressCharts()">
+                <option value="7">Ultima săptămână</option>
+                <option value="30">Ultima lună</option>
+                <option value="90">Ultimele 3 luni</option>
+                <option value="365">Ultimul an</option>
+                <option value="all">Toate datele</option>
+            </select>
+        </div>
+
+        <!-- Grafice de progres -->
+        <div class="progress-charts">
+            <div class="chart-container">
+                <h3>Progresul Greutății</h3>
+                <canvas id="weightChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Progresul Repetărilor</h3>
+                <canvas id="repsChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Volum Total (Greutate × Repetări)</h3>
+                <canvas id="volumeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Statistici generale -->
+        <div class="progress-stats">
+            <h3>Statistici Generale</h3>
+            <div id="general-stats"></div>
+        </div>
+
+        <!-- Istoric detaliat -->
+        <div class="progress-history">
+            <h3>Istoric Detaliat</h3>
+            <div id="progress-data"></div>
+        </div>
+
+        <!-- Butoane de acțiune -->
+        <div class="progress-actions">
+            <button type="button" onclick="displayProgress()">Reîmprospătează Datele</button>
+            <button type="button" onclick="exportProgressData()">Exportă Datele</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     loadWorkouts();
     setupExerciseAutocomplete();
+    checkLoginStatus();
 });
 
 function addWorkout() {
@@ -8,12 +9,52 @@ function addWorkout() {
     const reps = parseInt(document.getElementById("reps")?.value);
     const weight = parseInt(document.getElementById("weight")?.value);
     
-    if (!exercise || isNaN(reps) || isNaN(weight)) return;
+    // Validare exercițiu
+    if (!exercise) {
+        showMessage("workout-message", "Te rog să introduci un exercițiu.", "red");
+        return;
+    }
+
+    // Validare repetări
+    if (isNaN(reps)) {
+        showMessage("workout-message", "Te rog să introduci un număr valid de repetări.", "red");
+        return;
+    }
+    if (reps <= 0) {
+        showMessage("workout-message", "Numărul de repetări trebuie să fie mai mare decât 0.", "red");
+        return;
+    }
+    if (reps > 100) {
+        showMessage("workout-message", "Numărul de repetări pare prea mare. Verifică și încearcă din nou.", "red");
+        return;
+    }
+
+    // Validare greutate
+    if (isNaN(weight)) {
+        showMessage("workout-message", "Te rog să introduci o greutate validă.", "red");
+        return;
+    }
+    if (weight < 0) {
+        showMessage("workout-message", "Greutatea nu poate fi negativă.", "red");
+        return;
+    }
+    if (weight > 500) {
+        showMessage("workout-message", "Greutatea pare prea mare. Verifică și încearcă din nou.", "red");
+        return;
+    }
 
     const workout = { exercise, reps, weight, date: new Date().toISOString() };
     const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
     workouts.push(workout);
     localStorage.setItem("workouts", JSON.stringify(workouts));
+    
+    // Curăță câmpurile după adăugare
+    document.getElementById("exercise").value = "";
+    document.getElementById("reps").value = "";
+    document.getElementById("weight").value = "";
+    
+    // Afișează mesaj de succes
+    showMessage("workout-message", "Antrenament adăugat cu succes!", "green");
     
     updateWorkoutList(workouts);
 }
@@ -41,22 +82,30 @@ function updateWorkoutList(workouts) {
             const listItem = document.createElement("li");
             listItem.innerHTML = `
                 ${workout.exercise}: ${workout.reps} repetări - ${workout.weight} kg
-                <button class="edit-btn" onclick="editWorkout(${index})">Editează</button>
-                <button class="delete-btn" onclick="deleteWorkout(${index})">Șterge</button>
+                <button type="button" class="edit-btn" onclick="editWorkout('${workout.exercise}', '${workout.date}')">Editează</button>
+                <button type="button" class="delete-btn" onclick="deleteWorkout('${workout.exercise}', '${workout.date}')">Șterge</button>
             `;
             workoutList.appendChild(listItem);
         });
     }
 }
-function deleteWorkout(index) {
+function deleteWorkout(exercise, date) {
+    if (!confirm(`Ești sigur că vrei să ștergi exercițiul "${exercise}" din data ${new Date(date).toLocaleDateString()}?`)) {
+        return;
+    }
+
     const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
-    workouts.splice(index, 1); // Ștergem workout-ul de la poziția "index"
-    localStorage.setItem("workouts", JSON.stringify(workouts));
-    loadWorkouts(); // Reîncărcăm lista
+    const updatedWorkouts = workouts.filter(workout => 
+        !(workout.exercise === exercise && workout.date === date)
+    );
+    
+    localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+    showMessage("workout-message", `Exercițiul "${exercise}" a fost șters cu succes!`, "green");
+    loadWorkouts();
 }
-function editWorkout(index) {
+function editWorkout(exercise, date) {
     const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
-    const workout = workouts[index];
+    const workout = workouts.find(w => w.exercise === exercise && w.date === date);
     if (!workout) return;
 
     // Setăm valorile în input-uri
@@ -64,25 +113,56 @@ function editWorkout(index) {
     document.getElementById("reps").value = workout.reps;
     document.getElementById("weight").value = workout.weight;
 
-    // După editare și apăsare pe "Adaugă", va actualiza în loc să adauge nou
-    document.querySelector('button[onclick="addWorkout()"]').onclick = function() {
+    // Schimbăm textul butonului de adăugare
+    const addButton = document.querySelector('button[onclick="addWorkout()"]');
+    const originalText = addButton.textContent;
+    addButton.textContent = "Actualizează";
+
+    // După editare și apăsare pe "Actualizează", va actualiza în loc să adauge nou
+    addButton.onclick = function() {
         const updatedExercise = document.getElementById("exercise")?.value.trim();
         const updatedReps = parseInt(document.getElementById("reps")?.value);
         const updatedWeight = parseInt(document.getElementById("weight")?.value);
 
-        if (!updatedExercise || isNaN(updatedReps) || isNaN(updatedWeight)) return;
+        // Validări pentru actualizare
+        if (!updatedExercise) {
+            showMessage("workout-message", "Te rog să introduci un exercițiu.", "red");
+            return;
+        }
+        if (isNaN(updatedReps) || updatedReps <= 0 || updatedReps > 100) {
+            showMessage("workout-message", "Te rog să introduci un număr valid de repetări (1-100).", "red");
+            return;
+        }
+        if (isNaN(updatedWeight) || updatedWeight < 0 || updatedWeight > 500) {
+            showMessage("workout-message", "Te rog să introduci o greutate validă (0-500 kg).", "red");
+            return;
+        }
 
-        workouts[index] = { 
-            exercise: updatedExercise, 
-            reps: updatedReps, 
-            weight: updatedWeight, 
-            date: new Date().toISOString() 
-        };
-        localStorage.setItem("workouts", JSON.stringify(workouts));
+        // Actualizează antrenamentul
+        const updatedWorkouts = workouts.map(w => {
+            if (w.exercise === exercise && w.date === date) {
+                return {
+                    exercise: updatedExercise,
+                    reps: updatedReps,
+                    weight: updatedWeight,
+                    date: date // Păstrăm data originală
+                };
+            }
+            return w;
+        });
+
+        localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+        showMessage("workout-message", "Antrenament actualizat cu succes!", "green");
         loadWorkouts();
 
-        // Resetăm butonul la funcția originală
-        document.querySelector('button[onclick]').onclick = addWorkout;
+        // Resetăm butonul la starea originală
+        addButton.textContent = originalText;
+        addButton.onclick = addWorkout;
+        
+        // Curăță câmpurile
+        document.getElementById("exercise").value = "";
+        document.getElementById("reps").value = "";
+        document.getElementById("weight").value = "";
     };
 }
 function goToProgress() {
@@ -151,7 +231,10 @@ const exerciseList = [
     "Ramat cu haltera", "Ramat cu gantera", "Lat pulldown", "Ramat la aparat", "Îndreptări clasice",
     "Flexii cu gantere", "Flexii ciocan", "Flexii cu bară Z", "Flexii la helcometru", "Flexii concentrate",
     "Flotări la paralele", "Extensii cu gantera deasupra capului", "Skull crushers", "Extensii la helcometru",
-    "Flotări diamant"
+    "Flotări diamant","Bulgarian squad", "Sărituri cu coarda", "Box jumps", "Burpees", "Mountain climbers",
+    "Plank", "Plank lateral", "Russian twists", "Crunches", "Leg raises", "Bicycle crunches","Flutter kicks",
+    "Superman", "Glute bridges", "Hip thrusts", "Side lunges", "Wall sits", "Kettlebell swings","  Deadlifts",
+    "Push-ups", "Pull-ups", "Dumbbell rows", "Bench press", "Incline bench press", "Chest flys"
 ];
 
 function setupExerciseAutocomplete() {
@@ -301,7 +384,440 @@ function login() {
 function showMessage(elementId, message, color) {
     const element = document.getElementById(elementId);
     if (!element) return;
+    
     element.textContent = message;
     element.style.color = color;
+    
+    // Adaugă animație pentru mesaj
+    element.style.animation = 'none';
+    element.offsetHeight; // Forțează reflow
+    element.style.animation = 'fadeIn 0.5s';
+    
+    // Ascunde mesajul după 3 secunde dacă este un mesaj de succes
+    if (color === "green") {
+        setTimeout(() => {
+            element.style.animation = 'fadeOut 0.5s';
+            setTimeout(() => {
+                element.textContent = "";
+            }, 500);
+        }, 3000);
+    }
 }
+
+const workoutCategories = {
+    PIEPT: "Piept",
+    SPATE: "Spate",
+    PICIORI: "Picioare",
+    UMERI: "Umeri",
+    BICEPS: "Biceps",
+    TRICEPS: "Triceps",
+    ABDOMEN: "Abdomen",
+    CARDIO: "Cardio"
+};
+
+const workoutTemplates = {
+    "Antrenament Piept": [
+        { exercise: "Împins cu haltera la bancă orizontală", reps: 12, weight: 0 },
+        { exercise: "Fluturări cu gantere", reps: 12, weight: 0 },
+        { exercise: "Dips pentru piept", reps: 12, weight: 0 }
+    ],
+    "Antrenament Spate": [
+        { exercise: "Tracțiuni la bară", reps: 10, weight: 0 },
+        { exercise: "Ramat cu haltera", reps: 12, weight: 0 },
+        { exercise: "Lat pulldown", reps: 12, weight: 0 }
+    ],
+    "Antrenament Picioare": [
+        { exercise: "Genuflexiuni cu haltera", reps: 12, weight: 0 },
+        { exercise: "Îndreptări românești", reps: 12, weight: 0 },
+        { exercise: "Presă pentru picioare", reps: 12, weight: 0 }
+    ]
+};
+
+let timerInterval;
+let timeLeft = 0;
+
+function startTimer(seconds) {
+    timeLeft = seconds;
+    const timerDisplay = document.getElementById('timer-display');
+    if (!timerDisplay) return;
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            playAlarm();
+        }
+        timeLeft--;
+    }, 1000);
+}
+
+function playAlarm() {
+    const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3');
+    audio.play();
+}
+
+function exportWorkoutHistory() {
+    const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "Data,Exercițiu,Repetări,Greutate\n"
+        + workouts.map(workout => {
+            const date = new Date(workout.date).toLocaleDateString();
+            return `${date},${workout.exercise},${workout.reps},${workout.weight}`;
+        }).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "istoric_antrenamente.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Funcție pentru a aplica un șablon de antrenament
+function applyWorkoutTemplate(templateName) {
+    const template = workoutTemplates[templateName];
+    if (!template) return;
+
+    template.forEach(exercise => {
+        document.getElementById("exercise").value = exercise.exercise;
+        document.getElementById("reps").value = exercise.reps;
+        document.getElementById("weight").value = exercise.weight;
+        addWorkout();
+    });
+}
+
+// Obiective și realizări
+const achievements = {
+    "Primul Antrenament": {
+        description: "Completează primul tău antrenament",
+        check: (workouts) => workouts.length >= 1
+    },
+    "Consistență": {
+        description: "Completează 5 antrenamente",
+        check: (workouts) => workouts.length >= 5
+    },
+    "Greutate Ridicată": {
+        description: "Ridică peste 1000kg în total",
+        check: (workouts) => workouts.reduce((total, w) => total + (w.weight * w.reps), 0) >= 1000
+    }
+};
+
+function checkAchievements() {
+    const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
+    const userAchievements = JSON.parse(localStorage.getItem("userAchievements")) || [];
+    const newAchievements = [];
+
+    for (const [achievement, data] of Object.entries(achievements)) {
+        if (!userAchievements.includes(achievement) && data.check(workouts)) {
+            newAchievements.push(achievement);
+            userAchievements.push(achievement);
+        }
+    }
+
+    if (newAchievements.length > 0) {
+        localStorage.setItem("userAchievements", JSON.stringify(userAchievements));
+        showAchievementNotification(newAchievements);
+    }
+}
+
+function showAchievementNotification(achievements) {
+    const notification = document.createElement("div");
+    notification.className = "achievement-notification";
+    notification.innerHTML = `
+        <h3>Felicitări! Ai deblocat:</h3>
+        <ul>
+            ${achievements.map(a => `<li>${a}</li>`).join("")}
+        </ul>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 5000);
+}
+
+// Funcție pentru a desena graficul progresului
+function drawProgressChart() {
+    const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
+    const ctx = document.getElementById('progressChart');
+    if (!ctx) return;
+
+    // Grupare antrenamente după exercițiu
+    const exerciseData = {};
+    workouts.forEach(workout => {
+        if (!exerciseData[workout.exercise]) {
+            exerciseData[workout.exercise] = [];
+        }
+        exerciseData[workout.exercise].push({
+            date: new Date(workout.date),
+            weight: workout.weight,
+            reps: workout.reps
+        });
+    });
+
+    // Creare grafic pentru fiecare exercițiu
+    for (const [exercise, data] of Object.entries(exerciseData)) {
+        const dates = data.map(d => d.date.toLocaleDateString());
+        const weights = data.map(d => d.weight);
+        const reps = data.map(d => d.reps);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: `${exercise} - Greutate`,
+                    data: weights,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }, {
+                    label: `${exercise} - Repetări`,
+                    data: reps,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Funcții pentru pagina de progres
+function updateProgressCharts() {
+    const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
+    const selectedExercise = document.getElementById("exercise-filter").value;
+    const timeFilter = document.getElementById("time-filter").value;
+    
+    // Filtrare date
+    let filteredWorkouts = workouts;
+    if (selectedExercise) {
+        filteredWorkouts = workouts.filter(w => w.exercise === selectedExercise);
+    }
+    
+    if (timeFilter !== "all") {
+        const daysAgo = new Date();
+        daysAgo.setDate(daysAgo.getDate() - parseInt(timeFilter));
+        filteredWorkouts = filteredWorkouts.filter(w => new Date(w.date) >= daysAgo);
+    }
+
+    // Sortare după dată
+    filteredWorkouts.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Pregătire date pentru grafice
+    const dates = filteredWorkouts.map(w => new Date(w.date).toLocaleDateString());
+    const weights = filteredWorkouts.map(w => w.weight);
+    const reps = filteredWorkouts.map(w => w.reps);
+    const volumes = filteredWorkouts.map(w => w.weight * w.reps);
+
+    // Actualizare grafice
+    updateWeightChart(dates, weights);
+    updateRepsChart(dates, reps);
+    updateVolumeChart(dates, volumes);
+    updateGeneralStats(filteredWorkouts);
+}
+
+function updateWeightChart(dates, weights) {
+    const ctx = document.getElementById('weightChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Greutate (kg)',
+                data: weights,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Greutate (kg)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateRepsChart(dates, reps) {
+    const ctx = document.getElementById('repsChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Repetări',
+                data: reps,
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Repetări'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateVolumeChart(dates, volumes) {
+    const ctx = document.getElementById('volumeChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Volum Total (kg)',
+                data: volumes,
+                borderColor: 'rgb(153, 102, 255)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Volum Total (kg)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateGeneralStats(workouts) {
+    const statsContainer = document.getElementById('general-stats');
+    if (!statsContainer) return;
+
+    if (workouts.length === 0) {
+        statsContainer.innerHTML = '<p>Nu există date pentru perioada selectată.</p>';
+        return;
+    }
+
+    const totalVolume = workouts.reduce((sum, w) => sum + (w.weight * w.reps), 0);
+    const maxWeight = Math.max(...workouts.map(w => w.weight));
+    const totalReps = workouts.reduce((sum, w) => sum + w.reps, 0);
+    const uniqueExercises = new Set(workouts.map(w => w.exercise)).size;
+
+    statsContainer.innerHTML = `
+        <div class="stat-item">
+            <h4>Volum Total</h4>
+            <p>${totalVolume} kg</p>
+        </div>
+        <div class="stat-item">
+            <h4>Greutate Maximă</h4>
+            <p>${maxWeight} kg</p>
+        </div>
+        <div class="stat-item">
+            <h4>Total Repetări</h4>
+            <p>${totalReps}</p>
+        </div>
+        <div class="stat-item">
+            <h4>Exerciții Unice</h4>
+            <p>${uniqueExercises}</p>
+        </div>
+    `;
+}
+
+function exportProgressData() {
+    const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "Data,Exercițiu,Repetări,Greutate,Volum\n"
+        + workouts.map(workout => {
+            const date = new Date(workout.date).toLocaleDateString();
+            const volume = workout.weight * workout.reps;
+            return `${date},${workout.exercise},${workout.reps},${workout.weight},${volume}`;
+        }).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "progres_antrenamente.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Inițializare pagină progres
+document.addEventListener("DOMContentLoaded", () => {
+    if (window.location.pathname.includes("progress.html")) {
+        const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
+        const exerciseFilter = document.getElementById("exercise-filter");
+        
+        // Populare selector exerciții
+        const uniqueExercises = [...new Set(workouts.map(w => w.exercise))];
+        uniqueExercises.forEach(exercise => {
+            const option = document.createElement("option");
+            option.value = exercise;
+            option.textContent = exercise;
+            exerciseFilter.appendChild(option);
+        });
+
+        // Inițializare grafice
+        updateProgressCharts();
+    }
+});
+
+// Funcții pentru gestionarea vizibilității butonului "Află mai multe despre aplicație"
+function checkLoginStatus() {
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    const aboutButton = document.querySelector('.about-app-button');
+    if (aboutButton) {
+        aboutButton.style.display = loggedInUser ? 'block' : 'none';
+    }
+}
+
+// Extinderea funcțiilor de autentificare și înregistrare
+const originalLogin = window.login;
+window.login = function() {
+    originalLogin();
+    const loginMessage = document.getElementById('login-message');
+    if (loginMessage && loginMessage.textContent.includes('reușită')) {
+        checkLoginStatus();
+    }
+};
+
+const originalRegister = window.register;
+window.register = function() {
+    originalRegister();
+    const registerMessage = document.getElementById('register-message');
+    if (registerMessage && registerMessage.textContent.includes('reușită')) {
+        checkLoginStatus();
+    }
+};
+
+// Verifică starea de autentificare la încărcarea paginii
+document.addEventListener('DOMContentLoaded', function() {
+    checkLoginStatus();
+});
 
