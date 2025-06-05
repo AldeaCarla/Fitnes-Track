@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     loadWorkouts();
     setupExerciseAutocomplete();
+    setupCategorySelector();
     checkLoginStatus();
 });
 
@@ -8,6 +9,9 @@ function addWorkout() {
     const exercise = document.getElementById("exercise")?.value.trim();
     const reps = parseInt(document.getElementById("reps")?.value);
     const weight = parseInt(document.getElementById("weight")?.value);
+    const category = document.getElementById("category")?.value;
+    const duration = parseInt(document.getElementById("duration")?.value);
+    const notes = document.getElementById("notes")?.value.trim();
     
     // Validare exercițiu
     if (!exercise) {
@@ -43,7 +47,22 @@ function addWorkout() {
         return;
     }
 
-    const workout = { exercise, reps, weight, date: new Date().toISOString() };
+    // Validare durată
+    if (duration && (isNaN(duration) || duration <= 0 || duration > 180)) {
+        showMessage("workout-message", "Durata trebuie să fie între 1 și 180 minute.", "red");
+        return;
+    }
+
+    const workout = {
+        exercise,
+        reps,
+        weight,
+        category,
+        duration: duration || null,
+        notes: notes || "",
+        date: new Date().toISOString()
+    };
+
     const workouts = JSON.parse(localStorage.getItem("workouts")) || [];
     workouts.push(workout);
     localStorage.setItem("workouts", JSON.stringify(workouts));
@@ -52,6 +71,9 @@ function addWorkout() {
     document.getElementById("exercise").value = "";
     document.getElementById("reps").value = "";
     document.getElementById("weight").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("duration").value = "";
+    document.getElementById("notes").value = "";
     
     // Afișează mesaj de succes
     showMessage("workout-message", "Antrenament adăugat cu succes!", "green");
@@ -78,14 +100,51 @@ function updateWorkoutList(workouts) {
         workoutMessage.textContent = "Nu există antrenamente adăugate încă.";
     } else {
         workoutMessage.textContent = "";
-        workouts.forEach((workout, index) => {
-            const listItem = document.createElement("li");
-            listItem.innerHTML = `
-                ${workout.exercise}: ${workout.reps} repetări - ${workout.weight} kg
-                <button type="button" class="edit-btn" onclick="editWorkout('${workout.exercise}', '${workout.date}')">Editează</button>
-                <button type="button" class="delete-btn" onclick="deleteWorkout('${workout.exercise}', '${workout.date}')">Șterge</button>
-            `;
-            workoutList.appendChild(listItem);
+        
+        // Grupare antrenamente după dată
+        const groupedWorkouts = workouts.reduce((groups, workout) => {
+            const date = new Date(workout.date).toLocaleDateString();
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(workout);
+            return groups;
+        }, {});
+
+        // Afișare antrenamente grupate
+        Object.entries(groupedWorkouts).sort((a, b) => new Date(b[0]) - new Date(a[0])).forEach(([date, dayWorkouts]) => {
+            const dateHeader = document.createElement("h3");
+            dateHeader.textContent = date;
+            dateHeader.classList.add("workout-date");
+            workoutList.appendChild(dateHeader);
+
+            dayWorkouts.forEach(workout => {
+                const listItem = document.createElement("li");
+                listItem.classList.add("workout-item");
+                
+                let workoutInfo = `
+                    <div class="workout-info">
+                        <strong>${workout.exercise}</strong>
+                        ${workout.category ? `<span class="category">${workout.category}</span>` : ''}
+                        <div class="workout-details">
+                            ${workout.reps} repetări × ${workout.weight} kg
+                            ${workout.duration ? `<span class="duration">${workout.duration} min</span>` : ''}
+                        </div>
+                        ${workout.notes ? `<p class="workout-notes">${workout.notes}</p>` : ''}
+                    </div>
+                    <div class="workout-actions">
+                        <button type="button" class="edit-btn" onclick="editWorkout('${workout.exercise}', '${workout.date}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="delete-btn" onclick="deleteWorkout('${workout.exercise}', '${workout.date}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                listItem.innerHTML = workoutInfo;
+                workoutList.appendChild(listItem);
+            });
         });
     }
 }
@@ -112,6 +171,9 @@ function editWorkout(exercise, date) {
     document.getElementById("exercise").value = workout.exercise;
     document.getElementById("reps").value = workout.reps;
     document.getElementById("weight").value = workout.weight;
+    document.getElementById("category").value = workout.category;
+    document.getElementById("duration").value = workout.duration;
+    document.getElementById("notes").value = workout.notes;
 
     // Schimbăm textul butonului de adăugare
     const addButton = document.querySelector('button[onclick="addWorkout()"]');
@@ -123,6 +185,9 @@ function editWorkout(exercise, date) {
         const updatedExercise = document.getElementById("exercise")?.value.trim();
         const updatedReps = parseInt(document.getElementById("reps")?.value);
         const updatedWeight = parseInt(document.getElementById("weight")?.value);
+        const updatedCategory = document.getElementById("category")?.value;
+        const updatedDuration = parseInt(document.getElementById("duration")?.value);
+        const updatedNotes = document.getElementById("notes")?.value.trim();
 
         // Validări pentru actualizare
         if (!updatedExercise) {
@@ -137,6 +202,10 @@ function editWorkout(exercise, date) {
             showMessage("workout-message", "Te rog să introduci o greutate validă (0-500 kg).", "red");
             return;
         }
+        if (updatedDuration && (isNaN(updatedDuration) || updatedDuration <= 0 || updatedDuration > 180)) {
+            showMessage("workout-message", "Durata trebuie să fie între 1 și 180 minute.", "red");
+            return;
+        }
 
         // Actualizează antrenamentul
         const updatedWorkouts = workouts.map(w => {
@@ -145,6 +214,9 @@ function editWorkout(exercise, date) {
                     exercise: updatedExercise,
                     reps: updatedReps,
                     weight: updatedWeight,
+                    category: updatedCategory,
+                    duration: updatedDuration,
+                    notes: updatedNotes,
                     date: date // Păstrăm data originală
                 };
             }
@@ -163,6 +235,9 @@ function editWorkout(exercise, date) {
         document.getElementById("exercise").value = "";
         document.getElementById("reps").value = "";
         document.getElementById("weight").value = "";
+        document.getElementById("category").value = "";
+        document.getElementById("duration").value = "";
+        document.getElementById("notes").value = "";
     };
 }
 function goToProgress() {
@@ -819,5 +894,192 @@ window.register = function() {
 // Verifică starea de autentificare la încărcarea paginii
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
+});
+
+// Funcție pentru a popula selectorul de categorii
+function setupCategorySelector() {
+    const categorySelect = document.getElementById("category");
+    if (!categorySelect) return;
+
+    // Adaugă opțiunea implicită
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Selectează categoria";
+    categorySelect.appendChild(defaultOption);
+
+    // Adaugă toate categoriile
+    Object.entries(workoutCategories).forEach(([key, value]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        categorySelect.appendChild(option);
+    });
+}
+
+// Funcții pentru calculatorul de calorii și planul alimentar
+function calculateNutrition() {
+    const weight = parseFloat(document.getElementById("weight").value);
+    const height = parseFloat(document.getElementById("height").value);
+    const age = parseInt(document.getElementById("age").value);
+    const activity = parseFloat(document.getElementById("activity").value);
+    const goal = document.getElementById("goal").value;
+
+    if (!weight || !height || !age) {
+        showMessage("nutrition-results", "Te rog să completezi toate câmpurile.", "red");
+        return;
+    }
+
+    // Calcul BMR (Basal Metabolic Rate) folosind formula Mifflin-St Jeor
+    let bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+    
+    // Ajustare pentru nivelul de activitate
+    let tdee = bmr * activity;
+
+    // Ajustare pentru obiectiv
+    switch(goal) {
+        case "lose":
+            tdee -= 500; // Deficit de 500 calorii pentru slăbire
+            break;
+        case "gain":
+            tdee += 500; // Surplus de 500 calorii pentru creștere masă musculară
+            break;
+    }
+
+    // Calcul macro-nutrienți
+    const protein = weight * 2.2; // 2.2g proteine per kg greutate
+    const fat = (tdee * 0.25) / 9; // 25% din calorii din grăsimi
+    const carbs = (tdee - (protein * 4) - (fat * 9)) / 4; // Restul din carbohidrați
+
+    // Afișare rezultate
+    const resultsDiv = document.getElementById("nutrition-results");
+    resultsDiv.innerHTML = `
+        <h3>Rezultatele Tale</h3>
+        <div class="macro-grid">
+            <div class="macro-item">
+                <h4>Calorii Zilnice</h4>
+                <p>${Math.round(tdee)} kcal</p>
+            </div>
+            <div class="macro-item">
+                <h4>Proteine</h4>
+                <p>${Math.round(protein)}g</p>
+            </div>
+            <div class="macro-item">
+                <h4>Grăsimi</h4>
+                <p>${Math.round(fat)}g</p>
+            </div>
+            <div class="macro-item">
+                <h4>Carbohidrați</h4>
+                <p>${Math.round(carbs)}g</p>
+            </div>
+        </div>
+    `;
+}
+
+function addMeal() {
+    const mealType = document.getElementById("meal-type").value;
+    const mealTime = document.getElementById("meal-time").value;
+    const mealNotes = document.getElementById("meal-notes").value.trim();
+
+    if (!mealTime) {
+        showMessage("meal-list", "Te rog să selectezi ora mesei.", "red");
+        return;
+    }
+
+    const meal = {
+        type: mealType,
+        time: mealTime,
+        notes: mealNotes,
+        date: new Date().toISOString()
+    };
+
+    // Salvare în localStorage
+    const meals = JSON.parse(localStorage.getItem("meals")) || [];
+    meals.push(meal);
+    localStorage.setItem("meals", JSON.stringify(meals));
+
+    // Curățare formular
+    document.getElementById("meal-time").value = "";
+    document.getElementById("meal-notes").value = "";
+
+    // Actualizare listă mese
+    updateMealList();
+}
+
+function updateMealList() {
+    const mealList = document.getElementById("meal-list");
+    const meals = JSON.parse(localStorage.getItem("meals")) || [];
+
+    if (meals.length === 0) {
+        mealList.innerHTML = "<p>Nu există mese planificate.</p>";
+        return;
+    }
+
+    // Grupare mese după dată
+    const groupedMeals = meals.reduce((groups, meal) => {
+        const date = new Date(meal.date).toLocaleDateString();
+        if (!groups[date]) {
+            groups[date] = [];
+        }
+        groups[date].push(meal);
+        return groups;
+    }, {});
+
+    mealList.innerHTML = "";
+
+    // Afișare mese grupate
+    Object.entries(groupedMeals).sort((a, b) => new Date(b[0]) - new Date(a[0])).forEach(([date, dayMeals]) => {
+        const dateHeader = document.createElement("h3");
+        dateHeader.textContent = date;
+        dateHeader.classList.add("meal-date");
+        mealList.appendChild(dateHeader);
+
+        dayMeals.forEach(meal => {
+            const mealItem = document.createElement("div");
+            mealItem.classList.add("meal-item");
+            
+            mealItem.innerHTML = `
+                <div class="meal-info">
+                    <h4>${getMealTypeName(meal.type)}</h4>
+                    <div class="meal-time">${meal.time}</div>
+                    ${meal.notes ? `<div class="meal-notes">${meal.notes}</div>` : ''}
+                </div>
+                <div class="meal-actions">
+                    <button type="button" onclick="deleteMeal('${meal.date}')" class="delete-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            mealList.appendChild(mealItem);
+        });
+    });
+}
+
+function getMealTypeName(type) {
+    const types = {
+        breakfast: "Mic Dejun",
+        lunch: "Prânz",
+        dinner: "Cină",
+        snack: "Gustare"
+    };
+    return types[type] || type;
+}
+
+function deleteMeal(date) {
+    if (!confirm("Ești sigur că vrei să ștergi această masă?")) {
+        return;
+    }
+
+    const meals = JSON.parse(localStorage.getItem("meals")) || [];
+    const updatedMeals = meals.filter(meal => meal.date !== date);
+    localStorage.setItem("meals", JSON.stringify(updatedMeals));
+    updateMealList();
+}
+
+// Inițializare la încărcarea paginii
+document.addEventListener("DOMContentLoaded", () => {
+    if (window.location.pathname.includes("nutrition.html")) {
+        updateMealList();
+    }
 });
 

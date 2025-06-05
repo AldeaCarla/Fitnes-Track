@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plan Alimentar</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <nav>
@@ -12,18 +13,98 @@
         <a href="workouts.html">Antrenamente</a>
         <a href="progress.html">Progres</a>
         <a href="nutrition.html">Plan Alimentar</a>
-          <a href="despre.html">Despre Aplicație</a>
-
+        <a href="despre.html">Despre Aplicație</a>
     </nav>
 
     <div class="container">
-        <h2>Exemple retete pentru Bodybuilderi</h2>
-        <button type="button" onclick="getRecipes()">Încarcă Rețete</button>
-          <div id="recipe-list"></div>
-         <button id="loadMore" type="button">Încarcă mai multe</button>
+        <h1>Plan Alimentar</h1>
 
-        <div id="recipes-container"></div>
-        <div id="recipes" class="recipe-grid"></div>
+        <!-- Calculator Calorii -->
+        <div class="nutrition-calculator">
+            <h2>Calculator Calorii și Macro-nutrienți</h2>
+            <div class="calculator-form">
+                <div class="form-group">
+                    <label for="weight">Greutate (kg):</label>
+                    <input type="number" id="weight" min="30" max="200" placeholder="Introdu greutatea">
+                </div>
+                <div class="form-group">
+                    <label for="height">Înălțime (cm):</label>
+                    <input type="number" id="height" min="100" max="250" placeholder="Introdu înălțimea">
+                </div>
+                <div class="form-group">
+                    <label for="age">Vârstă:</label>
+                    <input type="number" id="age" min="15" max="100" placeholder="Introdu vârsta">
+                </div>
+                <div class="form-group">
+                    <label for="activity">Nivel de Activitate:</label>
+                    <select id="activity">
+                        <option value="1.2">Sedentar</option>
+                        <option value="1.375">Ușor activ (1-3 antrenamente/săptămână)</option>
+                        <option value="1.55">Moderat activ (3-5 antrenamente/săptămână)</option>
+                        <option value="1.725">Foarte activ (6-7 antrenamente/săptămână)</option>
+                        <option value="1.9">Extrem de activ (antrenamente zilnice)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="goal">Obiectiv:</label>
+                    <select id="goal" required>
+                        <option value="maintain">Menținere greutate</option>
+                        <option value="lose">Slăbire</option>
+                        <option value="gain">Creștere masă musculară</option>
+                    </select>
+                </div>
+                <button type="button" onclick="calculateNutrition()" class="btn">Calculează</button>
+            </div>
+            <div id="nutrition-results" class="nutrition-results"></div>
+        </div>
+
+        <!-- Plan Alimentar Zilnic -->
+        <div class="meal-plan">
+            <h2>Planul Tău Alimentar</h2>
+            <div class="meal-plan-form">
+                <div class="form-group">
+                    <label for="meal-type">Tip Masă:</label>
+                    <select id="meal-type">
+                        <option value="breakfast">Mic Dejun</option>
+                        <option value="lunch">Prânz</option>
+                        <option value="dinner">Cină</option>
+                        <option value="snack">Gustare</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="meal-time">Ora Mesei:</label>
+                    <input type="time" id="meal-time">
+                </div>
+                <div class="form-group">
+                    <label for="meal-notes">Note (opțional):</label>
+                    <textarea id="meal-notes" placeholder="Adaugă detalii despre masă..."></textarea>
+                </div>
+                <button type="button" onclick="addMeal()" class="btn">Adaugă Masă</button>
+            </div>
+            <div id="meal-list" class="meal-list"></div>
+        </div>
+
+        <!-- Rețete Recomandate -->
+        <div class="recipes-section">
+            <h2>Rețete Recomandate pentru Bodybuilderi</h2>
+            <div class="recipe-filters">
+                <select id="diet-type" onchange="filterRecipes()">
+                    <option value="high-protein">Ridicat în Proteine</option>
+                    <option value="low-carb">Sărac în Carbohidrați</option>
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="vegan">Vegan</option>
+                </select>
+                <button onclick="getRecipes()">Încarcă Rețete</button>
+            </div>
+            <div id="recipes" class="recipe-grid"></div>
+            <button id="loadMore" type="button">Încarcă mai multe</button>
+        </div>
+
+        <!-- Rețete Favorite -->
+        <div class="favorites-section">
+            <h2>Rețetele Tale Favorite</h2>
+            <div id="favorite-recipes" class="recipe-grid"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>
